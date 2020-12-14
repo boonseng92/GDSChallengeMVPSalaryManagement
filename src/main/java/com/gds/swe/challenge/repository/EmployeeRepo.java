@@ -5,4 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmployeeRepo extends CrudRepository<FileInfo, Long> {}
+public interface EmployeeRepo extends CrudRepository<FileInfo, Long> {
+
+    FileInfo findBylogin(String Id);
+}

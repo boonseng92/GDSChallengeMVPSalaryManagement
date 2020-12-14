@@ -11,20 +11,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
+
 
     @Autowired
     EmployeeRepo repository;
 
-
     @Override
-    public void save(MultipartFile file) {
+    public synchronized void save(MultipartFile file) {
         try {
             try {
-                List<FileInfo> tutorials = CSVvalidator.csvToTutorials(file.getInputStream());
-                repository.saveAll(tutorials);
-            } catch (IOException e) {
+                System.out.println("FileStorageService Start");
+                List<FileInfo> fileinfos = CSVvalidator.csvToString(file.getInputStream(), repository);
+                System.out.println("FileStorageService Validate");
+                repository.saveAll(fileinfos);
+                System.out.println("FileStorageService save");
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
                 throw new RuntimeException("fail to store csv data: " + e.getMessage());
             }
 
@@ -33,16 +38,10 @@ public class FileStorageServiceImpl implements FileStorageService {
         }
     }
 
-    public ByteArrayInputStream load() {
-        List<FileInfo> fileInfos = (List<FileInfo>) repository.findAll();
 
-        ByteArrayInputStream in = CSVvalidator.tutorialsToCSV(fileInfos);
-        return in;
-    }
 
     public List<FileInfo> getAllEmployeeInfo() {
         return (List<FileInfo>) repository.findAll();
     }
-    }
 
-
+}

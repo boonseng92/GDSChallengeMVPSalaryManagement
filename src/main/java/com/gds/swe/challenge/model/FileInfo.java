@@ -6,7 +6,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "employeedetails")
 
 public class FileInfo {
 
@@ -21,10 +20,11 @@ public class FileInfo {
     private String name;
 
     @Column(name = "salary")
-    private long salary;
+    private double salary;
 
+    public FileInfo(){}
 
-    public FileInfo(String id, String login, String name, long salary) {
+    public FileInfo(String id, String login, String name, double salary) {
         this.id = id;
         this.login = login;
         this.name = name;
@@ -54,11 +54,11 @@ public class FileInfo {
         this.name = name;
     }
 
-    public long getSalary() {
+    public double getSalary() {
         return salary;
     }
 
-    public void setSalary(long salary) {
+    public void setSalary(double salary) {
         this.salary = salary;
     }
 

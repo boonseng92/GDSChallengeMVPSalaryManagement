@@ -21,7 +21,6 @@ import java.util.List;
 
 @Controller
 @CrossOrigin("http://localhost:4200")
-@RequestMapping("/api/csv")
 public class EmployeeController {
 
     @Autowired
@@ -29,10 +28,11 @@ public class EmployeeController {
 
     @PostMapping("/upload")
     public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file) {
-        String message = "";
+        String message;
 
         if (CSVvalidator.hasCSVFormat(file)) {
             try {
+                System.out.println("Start Upload");
                 fileService.save(file);
 
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
@@ -62,14 +62,5 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping("/download")
-    public ResponseEntity<Resource> getFile() {
-        String filename = "employeeinfo.csv";
-        InputStreamResource file = new InputStreamResource(fileService.load());
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-                .contentType(MediaType.parseMediaType("application/csv"))
-                .body(file);
-    }
 }

@@ -6,28 +6,30 @@ import com.gds.swe.challenge.message.ResponseMessage;
 import com.gds.swe.challenge.model.FileInfo;
 import helper.CSVvalidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Controller
 @CrossOrigin("http://localhost:4200")
+@RequestMapping("/users")
 public class EmployeeController {
 
     @Autowired
     FileStorageService fileService;
 
     @PostMapping("/upload")
-    public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ResponseMessage> uploadFile(@Valid @RequestBody @RequestParam("file") MultipartFile file) {
         String message;
 
         if (CSVvalidator.hasCSVFormat(file)) {
@@ -36,6 +38,7 @@ public class EmployeeController {
                 fileService.save(file);
 
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
+
                 return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
             } catch (Exception e) {
                 message = "Could not upload the file: " + file.getOriginalFilename() + "!";
@@ -62,5 +65,16 @@ public class EmployeeController {
         }
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
+    }
 
 }

@@ -1,66 +1,40 @@
 package com.gds.swe.challenge.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 
 @Entity
-
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class FileInfo {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false, unique = true)
+    @NotBlank(message = "ID is mandatory")
     private String id;
 
-    @Column(name = "login")
+    @Column(name = "login", nullable = false, unique = true)
+    @NotBlank(message = "Login is mandatory")
     private String login;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
+    @NotBlank(message = "Name is mandatory")
     private String name;
 
-    @Column(name = "salary")
+    @Column(name = "salary", nullable = false)
+    @Min(0)
     private double salary;
 
-    public FileInfo(){}
-
-    public FileInfo(String id, String login, String name, double salary) {
-        this.id = id;
-        this.login = login;
-        this.name = name;
-        this.salary = salary;
-    }
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public double getSalary() {
-        return salary;
-    }
-
-    public void setSalary(double salary) {
-        this.salary = salary;
-    }
 
     @Override
     public String toString() {

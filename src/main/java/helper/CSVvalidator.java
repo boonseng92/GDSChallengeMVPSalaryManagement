@@ -15,12 +15,6 @@ import java.util.List;
 
 import com.gds.swe.challenge.model.FileInfo;
 import com.gds.swe.challenge.repository.EmployeeRepo;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.csv.QuoteMode;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 public class CSVvalidator {
@@ -65,7 +59,7 @@ public class CSVvalidator {
                     }
                 }
             }
-
+            System.out.println(fileInfos);
             return fileInfos;
 
         } catch (Exception e) {
@@ -82,9 +76,10 @@ public class CSVvalidator {
         if(data.length == 4){
             //Salary Validation
             //Check Decimal places lesser than 2
-            if(BigDecimal.valueOf( Double.parseDouble(data[3])).scale() < 2){
+            if(BigDecimal.valueOf( Double.parseDouble(data[3])).scale() < 3){
+
                 //Check negative salary
-                if(Double.compare(Double.parseDouble(data[3]), 0.0) < 0){
+                if(Double.compare(Double.parseDouble(data[3]), 0.0) > 0){
                     FileInfo employee = repository.findBylogin(data[1]);
                     //Check existing Login
                     if(employee == null){

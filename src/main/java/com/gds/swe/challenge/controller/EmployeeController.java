@@ -2,7 +2,7 @@ package com.gds.swe.challenge.controller;
 
 
 import com.gds.swe.challenge.Service.FileStorageService;
-import com.gds.swe.challenge.message.ResponseMessage;
+import com.gds.swe.challenge.validator.ResponseMessage;
 import com.gds.swe.challenge.model.FileInfo;
 import helper.CSVvalidator;
 import org.springframework.beans.factory.annotation.Autowired;

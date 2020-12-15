@@ -43,11 +43,6 @@ public class CSVvalidator {
                     if(validateRecord(line, repository)) {
                         //Split record into individual data
                         String[] data = line.split(cvsSplitBy);
-                        System.out.println(line);
-                        System.out.println(data[0]);
-                        System.out.println(data[1]);
-                        System.out.println(data[2]);
-                        System.out.println(Double.parseDouble(data[3]));
 
                         FileInfo fileinfo = new FileInfo(
                                 data[0],

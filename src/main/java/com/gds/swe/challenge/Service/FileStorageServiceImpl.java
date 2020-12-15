@@ -21,6 +21,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public synchronized void save(MultipartFile file) {
+        boolean result = false;
         try {
             try {
                 System.out.println("FileStorageService Start");
@@ -28,7 +29,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                 System.out.println("FileStorageService Validate");
                 repository.saveAll(fileinfos);
                 System.out.println("FileStorageService save");
-                System.out.println(repository.count());
+
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException("fail to store csv data: " + e.getMessage());

@@ -1,4 +1,4 @@
-package com.gds.swe.challenge.message;
+package com.gds.swe.challenge.validator;
 
 public class ResponseMessage {
     private String message;

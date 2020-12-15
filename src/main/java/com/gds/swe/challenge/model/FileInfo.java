@@ -32,7 +32,7 @@ public class FileInfo {
     private String name;
 
     @Column(name = "salary", nullable = false)
-    @Min(0)
+    @Min(value = 0, message ="Salary is too low")
     private double salary;
 
 

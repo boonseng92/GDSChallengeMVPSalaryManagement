@@ -1,19 +1,14 @@
 package helper;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import com.gds.swe.challenge.model.FileInfo;
+import com.gds.swe.challenge.model.Employee;
 import com.gds.swe.challenge.repository.EmployeeRepo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,11 +19,20 @@ public class CSVvalidator {
 
     public static boolean hasCSVFormat(MultipartFile file) {
 
-        return TYPE.equals(file.getContentType());
+        boolean result = false;
+
+        if(TYPE.equals(file.getContentType())){
+            result = true;
+        }
+        else if (file.getOriginalFilename().substring(file.getOriginalFilename().length() - 3).equals("csv")) {
+            result = true;
+        }
+
+        return result;
     }
 
-    public static List<FileInfo> csvToString(InputStream is, EmployeeRepo repository) {
-        List<FileInfo> fileInfos = new ArrayList<>();
+    public static List<Employee> csvToString(InputStream is, EmployeeRepo repository) {
+        List<Employee> employees = new ArrayList<>();
         try
         {
             String line;
@@ -36,31 +40,34 @@ public class CSVvalidator {
             BufferedReader fileReader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             //Skip first line
             line = fileReader.readLine();
-            while ((line = fileReader.readLine()) != null) {
-                char firstChar = line.charAt(0);
-                //Check for # first char in every line
-                if(firstChar != '#') {
-                    if(validateRecord(line, repository)) {
-                        //Split record into individual data
-                        String[] data = line.split(cvsSplitBy);
+            if(!line.isEmpty()) {
+                while ((line = fileReader.readLine()) != null) {
+                    char firstChar = line.charAt(0);
+                    //Check for # first char in every line
+                    if (firstChar != '#') {
+                        if (validateRecord(line, repository)) {
+                            //Split record into individual data
+                            String[] data = line.split(cvsSplitBy);
 
-                        FileInfo fileinfo = new FileInfo(
-                                data[0],
-                                data[1],
-                                data[2],
-                                Double.parseDouble(data[3]));
+                            Employee employee = new Employee(
+                                    data[0],
+                                    data[1],
+                                    data[2],
+                                    Double.parseDouble(data[3]));
 
-                        fileInfos.add(fileinfo);
+                            employees.add(employee);
+                        }else{
+                            throw new RuntimeException("Failed to validate record.");
+                        }
                     }
                 }
             }
-            System.out.println(fileInfos);
-            return fileInfos;
+            return employees;
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-        return fileInfos;
+        return employees;
     }
 
     //Record Validation
@@ -75,7 +82,7 @@ public class CSVvalidator {
 
                 //Check negative salary
                 if(Double.compare(Double.parseDouble(data[3]), 0.0) > 0){
-                    FileInfo employee = repository.findBylogin(data[1]);
+                    Employee employee = repository.findBylogin(data[1]);
                     //Check existing Login
                     if(employee == null){
                         result = true;
@@ -84,6 +91,7 @@ public class CSVvalidator {
                     else if (employee.getId().equals(data[0])) {
                         result = true;
                     }
+
                 }
             }
         }

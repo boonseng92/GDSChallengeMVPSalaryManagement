@@ -16,7 +16,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileInfo {
+public class Employee {
 
     @Id
     @Column(name = "id", nullable = false, unique = true)
@@ -38,6 +38,6 @@ public class FileInfo {
 
     @Override
     public String toString() {
-        return "FileInfo [id=" + id + ", login=" + login + ", name=" + name + ", salary=" + salary + "]";
+        return "Employee [id=" + id + ", login=" + login + ", name=" + name + ", salary=" + salary + "]";
     }
 }

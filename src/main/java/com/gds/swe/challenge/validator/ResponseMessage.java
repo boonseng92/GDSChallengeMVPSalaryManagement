@@ -1,10 +1,18 @@
 package com.gds.swe.challenge.validator;
 
+import java.util.List;
+
 public class ResponseMessage {
     private String message;
 
     public ResponseMessage(String message) {
         this.message = message;
+    }
+
+
+
+    public ResponseMessage() {
+
     }
 
     public String getMessage() {
@@ -14,5 +22,7 @@ public class ResponseMessage {
     public void setMessage(String message) {
         this.message = message;
     }
+
+
 
 }

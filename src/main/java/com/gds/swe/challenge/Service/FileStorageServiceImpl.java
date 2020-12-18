@@ -1,18 +1,18 @@
 package com.gds.swe.challenge.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.List;
 
-import com.gds.swe.challenge.model.FileInfo;
+import com.gds.swe.challenge.model.Employee;
 import com.gds.swe.challenge.repository.EmployeeRepo;
 import helper.CSVvalidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
+@Transactional
 public class FileStorageServiceImpl implements FileStorageService {
 
 
@@ -20,16 +20,20 @@ public class FileStorageServiceImpl implements FileStorageService {
     EmployeeRepo repository;
 
     @Override
-    public synchronized void save(MultipartFile file) {
-        boolean result = false;
+    public synchronized boolean save(MultipartFile file) {
+
         try {
             try {
                 System.out.println("FileStorageService Start");
-                List<FileInfo> fileinfos = CSVvalidator.csvToString(file.getInputStream(), repository);
-                System.out.println("FileStorageService Validate");
-                repository.saveAll(fileinfos);
-                System.out.println("FileStorageService save");
+                List<Employee> employees = CSVvalidator.csvToString(file.getInputStream(), repository);
+                if(employees.isEmpty())
+                {
+                    return false;
+                }
 
+                repository.saveAll(employees);
+                System.out.println("FileStorageService save");
+                return true;
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException("fail to store csv data: " + e.getMessage());
@@ -42,8 +46,8 @@ public class FileStorageServiceImpl implements FileStorageService {
 
 
 
-    public List<FileInfo> getAllEmployeeInfo() {
-        return (List<FileInfo>) repository.findAll();
+    public List<Employee> getAllEmployeeInfo() {
+        return (List<Employee>) repository.findAll();
     }
 
 }

@@ -1,11 +1,11 @@
 package com.gds.swe.challenge.repository;
 
-import com.gds.swe.challenge.model.FileInfo;
+import com.gds.swe.challenge.model.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmployeeRepo extends JpaRepository<FileInfo, Long> {
+public interface EmployeeRepo extends JpaRepository<Employee, String> {
 
-    FileInfo findBylogin(String Id);
+    Employee findBylogin(String login);
 }

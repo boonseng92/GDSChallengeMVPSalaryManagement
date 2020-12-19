@@ -1,7 +1,7 @@
 package com.gds.swe.challenge.controller;
 
 
-import com.gds.swe.challenge.Service.FileStorageService;
+import com.gds.swe.challenge.Service.FileService;
 import com.gds.swe.challenge.model.Employee;
 import com.gds.swe.challenge.repository.EmployeeRepo;
 import com.gds.swe.challenge.validator.CSVvalidator;
@@ -30,7 +30,7 @@ import java.util.Optional;
 public class EmployeeController {
 
     @Autowired
-    FileStorageService fileService;
+    FileService fileService;
 
     @Autowired
     EmployeeRepo employeeRepo;
@@ -97,7 +97,6 @@ public class EmployeeController {
             String sortSymbol = sort.substring(0,1);
             String sortColumn = sort.substring(1);
             if(sortSymbol.matches("[+-]") && (sortColumn.equals("id") || sortColumn.equals("login") || sortColumn.equals("name") || sortColumn.equals("salary"))) {
-
                 employees = fileService.getEmployeeInfo(minSalary, maxSalary, offset, limit, sortSymbol, sortColumn);
                 status = HttpStatus.OK;
 

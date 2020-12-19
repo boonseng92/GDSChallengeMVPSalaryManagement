@@ -1,13 +1,13 @@
 package com.gds.swe.challenge.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.gds.swe.challenge.model.Employee;
 import com.gds.swe.challenge.repository.EmployeeRepo;
 import com.gds.swe.challenge.validator.CSVvalidator;
-import com.gds.swe.challenge.validator.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
-public class FileServiceImpl implements FileStorageService {
+public class FileServiceImpl implements FileService {
 
 
     @Autowired
@@ -27,7 +27,7 @@ public class FileServiceImpl implements FileStorageService {
 
         try {
             try {
-                System.out.println("FileStorageService Start");
+                System.out.println("FileService Start");
                 List<Employee> employees = CSVvalidator.csvToString(file.getInputStream(), repository);
                 if(employees.isEmpty())
                 {
@@ -35,7 +35,7 @@ public class FileServiceImpl implements FileStorageService {
                 }
 
                 repository.saveAll(employees);
-                System.out.println("FileStorageService save");
+                System.out.println("FileService save");
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -57,11 +57,13 @@ public class FileServiceImpl implements FileStorageService {
     public List<Employee> getEmployeeInfo(Double minSalary, Double maxSalary, Integer offset, Integer limit, String sortSymbol, String sortColumn) {
 
         List<Employee> employees;
-
+        Pageable paging ;
         if(sortSymbol.matches("[+]")){
-            employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, new Pagination(offset, limit, Sort.by(sortColumn).ascending()));
+            paging = PageRequest.of(offset, limit, Sort.by(sortColumn).ascending());
+            employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, paging);
         }else{
-            employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, new Pagination(offset, limit, Sort.by(sortColumn).descending()));
+            paging = PageRequest.of(offset, limit, Sort.by(sortColumn).descending());
+            employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, paging);
         }
 
         return employees;

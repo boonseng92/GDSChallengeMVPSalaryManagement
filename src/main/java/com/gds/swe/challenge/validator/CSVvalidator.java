@@ -1,4 +1,4 @@
-package helper;
+package com.gds.swe.challenge.validator;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

@@ -13,4 +13,6 @@ public interface FileStorageService {
 
      List<Employee> getAllEmployeeInfo();
 
+     List<Employee> getEmployeeInfo(Double minSalary, Double maxSalary, Integer offset, Integer limit, String sortSymbol, String sortColumn);
+
 }

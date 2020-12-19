@@ -87,13 +87,13 @@ class EmployeeControllerTests {
 
         // get id e0001
         String getId = "e0001";
-        mockMvc.perform(MockMvcRequestBuilders.get("/users?id=" + getId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/user?id=" + getId))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
                 .andExpect(jsonPath("$.id", is(getId)));
 
         // get id e0002
         getId = "e0002";
-        mockMvc.perform(MockMvcRequestBuilders.get("/users?id=" + getId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/user?id=" + getId))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
                 .andExpect(jsonPath("$.id", is(getId)));
 
@@ -226,13 +226,13 @@ class EmployeeControllerTests {
 
         // get id e0001
         String getId = "e1001";
-        mockMvc.perform(MockMvcRequestBuilders.get("/users?id=" + getId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/user?id=" + getId))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
                 .andExpect(jsonPath("$.id", is(getId)));
 
         // get id e0002
         getId = "e1002";
-        mockMvc.perform(MockMvcRequestBuilders.get("/users?id=" + getId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/user?id=" + getId))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.content().string("null"));
     }
@@ -259,14 +259,14 @@ class EmployeeControllerTests {
 
         // get id e1001
         String getId = "e1001";
-        mockMvc.perform(MockMvcRequestBuilders.get("/users?id=" + getId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/user?id=" + getId))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
                 .andExpect(jsonPath("$.salary", is(999.0)))
                 .andExpect(jsonPath("$.name", is("Pot Potter")));
 
         // get id e1003
         getId = "e1003";
-        mockMvc.perform(MockMvcRequestBuilders.get("/users?id=" + getId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/user?id=" + getId))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
                 .andExpect(jsonPath("$.salary", is(888.88)))
                 .andExpect(jsonPath("$.name", is("Severus")));
@@ -291,7 +291,7 @@ class EmployeeControllerTests {
 
         // get id e0001
         String getId = "e0001";
-        mockMvc.perform(MockMvcRequestBuilders.get("/users?id=" + getId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/user?id=" + getId))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
                 .andExpect(jsonPath("$.name", is("哈利波特")));
     }

@@ -1,11 +1,14 @@
 package com.gds.swe.challenge.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.gds.swe.challenge.model.Employee;
 import com.gds.swe.challenge.repository.EmployeeRepo;
-import helper.CSVvalidator;
+import com.gds.swe.challenge.validator.CSVvalidator;
+import com.gds.swe.challenge.validator.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
-public class FileStorageServiceImpl implements FileStorageService {
+public class FileServiceImpl implements FileStorageService {
 
 
     @Autowired
@@ -48,6 +51,20 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     public List<Employee> getAllEmployeeInfo() {
         return (List<Employee>) repository.findAll();
+    }
+
+    @Override
+    public List<Employee> getEmployeeInfo(Double minSalary, Double maxSalary, Integer offset, Integer limit, String sortSymbol, String sortColumn) {
+
+        List<Employee> employees;
+
+        if(sortSymbol.matches("[+]")){
+            employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, new Pagination(offset, limit, Sort.by(sortColumn).ascending()));
+        }else{
+            employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, new Pagination(offset, limit, Sort.by(sortColumn).descending()));
+        }
+
+        return employees;
     }
 
 }

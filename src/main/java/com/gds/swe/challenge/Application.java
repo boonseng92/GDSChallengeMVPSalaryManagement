@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Application implements CommandLineRunner {
     @Resource
-    FileStorageService storageService;
+    FileStorageService fileStorageService;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -20,6 +20,6 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... arg) throws Exception {
-        storageService.getAllEmployeeInfo();
+        fileStorageService.getAllEmployeeInfo();
     }
 }

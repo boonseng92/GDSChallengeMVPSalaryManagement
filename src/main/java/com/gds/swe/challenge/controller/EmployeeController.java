@@ -4,8 +4,8 @@ package com.gds.swe.challenge.controller;
 import com.gds.swe.challenge.Service.FileStorageService;
 import com.gds.swe.challenge.model.Employee;
 import com.gds.swe.challenge.repository.EmployeeRepo;
+import com.gds.swe.challenge.validator.CSVvalidator;
 import com.gds.swe.challenge.validator.ResponseMessage;
-import helper.CSVvalidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +37,7 @@ public class EmployeeController {
 
     @PostMapping("/upload")
     public ResponseEntity<ResponseMessage> uploadFile(@Valid @RequestBody @RequestParam("file") MultipartFile file) {
-        String message;
+            String message;
         if (CSVvalidator.hasCSVFormat(file)) {
             try {
                 System.out.println("Start Upload");
@@ -61,7 +63,7 @@ public class EmployeeController {
     }
 
     @ResponseBody
-    @GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value="/user", produces=MediaType.APPLICATION_JSON_VALUE)
     public Optional<Employee> getUser(@NotBlank @RequestParam("id") String id){
         return employeeRepo.findById(id);
     }
@@ -81,5 +83,36 @@ public class EmployeeController {
         }
     }
 
+    @ResponseBody
+    @GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Employee>> getEmployeeInfo(@Valid @NotNull @RequestParam("minSalary") Double minSalary, @Valid @NotNull @RequestParam("maxSalary") Double maxSalary, @Valid @NotNull @RequestParam("offset") Integer offset,
+                                                          @Valid @NotNull @RequestParam("limit") Integer limit, @Valid @NotNull @RequestParam("sort") String sort) {
+        try {
+            HttpStatus status = null;
+            List<Employee> employees = new ArrayList<>();
+
+            if(offset < 0 || sort.isEmpty() || limit < 1 || minSalary < 0 || maxSalary < 0 || minSalary > maxSalary){
+               status = HttpStatus.BAD_REQUEST;
+            }
+            String sortSymbol = sort.substring(0,1);
+            String sortColumn = sort.substring(1);
+            if(sortSymbol.matches("[+-]") && (sortColumn.equals("id") || sortColumn.equals("login") || sortColumn.equals("name") || sortColumn.equals("salary"))) {
+
+                employees = fileService.getEmployeeInfo(minSalary, maxSalary, offset, limit, sortSymbol, sortColumn);
+                status = HttpStatus.OK;
+
+            }else{
+                status = HttpStatus.BAD_REQUEST;
+            }
+
+            if (employees.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(employees, status);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

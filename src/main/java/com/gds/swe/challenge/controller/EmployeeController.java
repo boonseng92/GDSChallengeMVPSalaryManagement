@@ -86,28 +86,28 @@ public class EmployeeController {
     @ResponseBody
     @GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Employee>> getEmployeeInfo(@Valid @NotNull @RequestParam("minSalary") Double minSalary, @Valid @NotNull @RequestParam("maxSalary") Double maxSalary, @Valid @NotNull @RequestParam("offset") Integer offset,
-                                                          @Valid @NotNull @RequestParam("limit") Integer limit, @Valid @NotNull @RequestParam("sort") String sort) {
+                                                          @Valid @NotNull @RequestParam("limit") Integer limit, @Valid @NotBlank @NotNull @RequestParam("sort") String sort) {
         try {
             HttpStatus status = null;
             List<Employee> employees = new ArrayList<>();
 
-            if(offset < 0 || sort.isEmpty() || limit < 1 || minSalary < 0 || maxSalary < 0 || minSalary > maxSalary){
-               status = HttpStatus.BAD_REQUEST;
-            }
-            String sortSymbol = sort.substring(0,1);
-            String sortColumn = sort.substring(1);
-            if(sortSymbol.matches("[+-]") && (sortColumn.equals("id") || sortColumn.equals("login") || sortColumn.equals("name") || sortColumn.equals("salary"))) {
-                employees = fileService.getEmployeeInfo(minSalary, maxSalary, offset, limit, sortSymbol, sortColumn);
-                status = HttpStatus.OK;
-
-            }else{
+            if (minSalary > maxSalary || offset < 0 || sort.equals("null") || limit < 1 || minSalary < 0 || maxSalary < 0) {
                 status = HttpStatus.BAD_REQUEST;
-            }
+            } else {
+                String sortSymbol = sort.substring(0, 1);
+                String sortColumn = sort.substring(1);
+                if (sortSymbol.matches("[+-]") && (sortColumn.equals("id") || sortColumn.equals("login") || sortColumn.equals("name") || sortColumn.equals("salary"))) {
+                    employees = fileService.getEmployeeInfo(minSalary, maxSalary, offset, limit, sortSymbol, sortColumn);
+                    status = HttpStatus.OK;
 
-            if (employees.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
+                } else {
+                    status = HttpStatus.BAD_REQUEST;
+                }
 
+                if (employees.isEmpty()) {
+                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                }
+            }
             return new ResponseEntity<>(employees, status);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);

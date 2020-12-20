@@ -5,6 +5,7 @@ import java.util.List;
 import com.gds.swe.challenge.model.Employee;
 import com.gds.swe.challenge.repository.EmployeeRepo;
 import com.gds.swe.challenge.validator.CSVvalidator;
+import com.gds.swe.challenge.validator.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -53,20 +54,20 @@ public class FileServiceImpl implements FileService {
         return (List<Employee>) repository.findAll();
     }
 
-    @Override
+
     public List<Employee> getEmployeeInfo(Double minSalary, Double maxSalary, Integer offset, Integer limit, String sortSymbol, String sortColumn) {
+        try {
+            List<Employee> employees;
+            if (sortSymbol.matches("[+]")) {
+                employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, new Pagination(offset, limit, Sort.by(sortColumn).ascending()));
+            } else {
+                employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, new Pagination(offset, limit, Sort.by(sortColumn).ascending()));
+            }
 
-        List<Employee> employees;
-        Pageable paging ;
-        if(sortSymbol.matches("[+]")){
-            paging = PageRequest.of(offset, limit, Sort.by(sortColumn).ascending());
-            employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, paging);
-        }else{
-            paging = PageRequest.of(offset, limit, Sort.by(sortColumn).descending());
-            employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, paging);
+            return employees;
+        } catch (Exception e) {
+            throw new RuntimeException("Could not retrieve records. Error: " + e.getMessage());
         }
-
-        return employees;
     }
 
 }

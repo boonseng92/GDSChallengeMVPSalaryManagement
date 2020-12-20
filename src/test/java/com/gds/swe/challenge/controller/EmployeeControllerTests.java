@@ -17,7 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 
 @SpringBootTest
 class EmployeeControllerTests {
@@ -324,14 +323,6 @@ class EmployeeControllerTests {
                 .andExpect(MockMvcResultMatchers.content().string("{\"message\":\"Could not upload the file: " + fileName + "!\"}"));
     }
 
-    @Test
-    @Order(14)
-    /*
-     * Test Case 14 Description: To test on uploading bad test file where there is duplicate id in the same file upload
-     */
-    public void uploadEmployeeComplexUsecase() throws Exception {
 
-
-    }
 
 }

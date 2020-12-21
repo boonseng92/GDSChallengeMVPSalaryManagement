@@ -15,10 +15,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,28 +87,31 @@ public class EmployeeController {
 
     @ResponseBody
     @GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Employee>> getEmployeeInfo(@Valid @NotNull @RequestParam("minSalary") Double minSalary, @Valid @NotNull @RequestParam("maxSalary") Double maxSalary, @Valid @NotNull @RequestParam("offset") Integer offset,
+    public ResponseEntity<List<Employee>> getEmployeeInfo(HttpServletRequest request, @Valid @NotNull @RequestParam("minSalary") Double minSalary, @Valid @NotNull @RequestParam("maxSalary") Double maxSalary, @Valid @NotNull @RequestParam("offset") Integer offset,
                                                           @Valid @NotNull @RequestParam("limit") Integer limit, @Valid @NotBlank @NotNull @RequestParam("sort") String sort) {
         try {
             HttpStatus status = null;
             List<Employee> employees = new ArrayList<>();
-
-            if (minSalary > maxSalary || offset < 0 || sort.equals("null") || limit < 1 || minSalary < 0 || maxSalary < 0) {
-                status = HttpStatus.BAD_REQUEST;
-            } else {
-                String sortSymbol = sort.substring(0, 1);
-                String sortColumn = sort.substring(1);
-                if (sortSymbol.matches("[+-]") && (sortColumn.equals("id") || sortColumn.equals("login") || sortColumn.equals("name") || sortColumn.equals("salary"))) {
-                    employees = fileService.getEmployeeInfo(minSalary, maxSalary, offset, limit, sortSymbol, sortColumn);
-                    status = HttpStatus.OK;
-
-                } else {
+            if(Collections.list(request.getParameterNames()).size() == 5) {
+                if (minSalary > maxSalary || offset < 0 || sort.equals("null") || limit < 1 || minSalary < 0 || maxSalary < 0) {
                     status = HttpStatus.BAD_REQUEST;
-                }
+                } else {
+                    String sortSymbol = sort.substring(0, 1);
+                    String sortColumn = sort.substring(1);
+                    if (sortSymbol.matches("[+-]") && (sortColumn.equals("id") || sortColumn.equals("login") || sortColumn.equals("name") || sortColumn.equals("salary"))) {
+                        employees = fileService.getEmployeeInfo(minSalary, maxSalary, offset, limit, sortSymbol, sortColumn);
+                        status = HttpStatus.OK;
 
-                if (employees.isEmpty()) {
-                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                    } else {
+                        status = HttpStatus.BAD_REQUEST;
+                    }
+
+                    if (employees.isEmpty() && status == HttpStatus.OK) {
+                        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                    }
                 }
+            }else{
+                status = HttpStatus.BAD_REQUEST;
             }
             return new ResponseEntity<>(employees, status);
         } catch (Exception e) {

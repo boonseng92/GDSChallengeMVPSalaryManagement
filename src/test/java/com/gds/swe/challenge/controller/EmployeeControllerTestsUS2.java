@@ -1,11 +1,16 @@
 package com.gds.swe.challenge.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gds.swe.challenge.model.Employee;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.annotation.Order;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -14,7 +19,9 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -297,7 +304,7 @@ public class EmployeeControllerTestsUS2 {
     public void getEmployeeSortWithSpecialSymbol() throws Exception {
 
         Double minSalary = 100.00;
-        String maxSalary = "abc";
+        Double maxSalary = 1000.0;
         Integer offset = 0;
         Integer limit = 0;
         String sort = "@name";
@@ -317,9 +324,9 @@ public class EmployeeControllerTestsUS2 {
     public void getEmployeeSortWithMoreThan1Column() throws Exception {
 
         Double minSalary = 100.00;
-        String maxSalary = "abc";
+        Double maxSalary = 1000.00;
         Integer offset = 0;
-        Integer limit = 0;
+        Integer limit = 30;
         String sort = "+idname";
 
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
@@ -329,4 +336,413 @@ public class EmployeeControllerTestsUS2 {
     }
 
 
+    @Test
+    @Order(16)
+    /*
+     * Test Case 16 Description: To test Salary range for minSalary equals maxSalary
+     * Return 200 OK Request.
+     */
+    public void getEmployeeMinSalaryEqualsMaxSalary() throws Exception {
+
+        Double minSalary = 1234.0;
+        Double maxSalary = 1234.0;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "+id";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+    }
+
+    @Test
+    @Order(17)
+    /*
+     * Test Case 17 Description: To test Salary range for maxSalary greater than minSalary
+     * Return 200 OK Request.
+     */
+    public void getEmployeeMaxSalaryGTMinSalary() throws Exception {
+
+        Double minSalary = 100.00;
+        Double maxSalary = 1000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "+id";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+    }
+
+
+    @Test
+    @Order(18)
+    /*
+     * Test Case 18 Description: To set offset to 0 and limit to 30. To retrieve employess from 1st row to 30 row.
+     * Return 200 OK Request.
+     */
+    public void getEmployeeOffsetSetTo1LimitTo30() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 100.00;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "+id";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getId().equals("e0001"));
+        assertTrue(employeeList.get(employeeList.size()-1).getId().equals("e0030"));
+
+    }
+
+    @Test
+    @Order(19)
+    /*
+     * Test Case 19 Description: To change offset to 1. To retrieve employess from 2nd row to 31 row.
+     * Return 200 OK Request.
+     */
+    public void getEmployeeOffsetSetTo1() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 100.00;
+        Double maxSalary = 40000.00;
+        Integer offset = 1;
+        Integer limit = 30;
+        String sort = "+id";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getId().equals("e0002"));
+        assertTrue(employeeList.get(employeeList.size()-1).getId().equals("e0031"));
+
+    }
+
+    @Test
+    @Order(20)
+    /*
+     * Test Case 20 Description: To change limit to 5. To retrieve employess from 1st row to 5 row.
+     * Return 200 OK Request.
+     */
+    public void getEmployeeLimitSetTo5() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 100.00;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 5;
+        String sort = "+id";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==5);
+        assertTrue(employeeList.get(0).getId().equals("e0001"));
+        assertTrue(employeeList.get(employeeList.size()-1).getId().equals("e0005"));
+
+    }
+
+    @Test
+    @Order(21)
+    /*
+     * Test Case 21 Description: To retrieve by Id in Ascending order with limit 30 and offset 0
+     * Return 200 OK Request.
+     */
+    public void getEmployeeByIdAsc() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "+id";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getId().equals("e0001"));
+        assertTrue(employeeList.get(employeeList.size()-1).getId().equals("e0030"));
+
+    }
+
+    @Test
+    @Order(22)
+    /*
+     * Test Case 22 Description: To retrieve by Id in Descending order with limit 30 and offset 0
+     * Return 200 OK Request.
+     */
+    public void getEmployeeByIdDes() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "-id";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getId().equals("e0065"));
+        assertTrue(employeeList.get(employeeList.size()-1).getId().equals("e0036"));
+
+    }
+
+    @Test
+    @Order(23)
+    /*
+     * Test Case 23 Description: To retrieve by Name in Ascending order with limit 30 and offset 0
+     * Return 200 OK Request.
+     */
+    public void getEmployeeByNameAsc() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "+name";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getName().equals("Albus Dumbledore"));
+        assertTrue(employeeList.get(employeeList.size()-1).getName().equals("Harry Potter"));
+
+    }
+
+    @Test
+    @Order(24)
+    /*
+     * Test Case 24 Description: To retrieve by Name in Descending order with limit 30 and offset 0
+     * Return 200 OK Request.
+     */
+    public void getEmployeeByNameDes() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "-name";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getName().equals("Severus Snape"));
+        assertTrue(employeeList.get(employeeList.size()-1).getName().equals("Hermione Granger"));
+
+    }
+
+    @Test
+    @Order(25)
+    /*
+     * Test Case 25 Description: To retrieve by login in Ascending order with limit 30 and offset 0
+     * Return 200 OK Request.
+     */
+    public void getEmployeeByLoginAsc() throws Exception {
+        setupDatabase();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "+login";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getLogin().equals("adumbledore51"));
+        assertTrue(employeeList.get(employeeList.size()-1).getLogin().equals("hpotter10"));
+
+    }
+
+    @Test
+    @Order(26)
+    /*
+     * Test Case 26 Description: To retrieve by login in Descending order with limit 30 and offset 0
+     * Return 200 OK Request.
+     */
+    public void getEmployeeByLoginDes() throws Exception {
+        setupDatabase();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "-login";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getLogin().equals("voldemort8"));
+        assertTrue(employeeList.get(employeeList.size()-1).getLogin().equals("hpotter35"));
+
+    }
+
+    @Test
+    @Order(27)
+    /*
+     * Test Case 27 Description: To retrieve by salary in Ascending order with limit 30 and offset 0
+     * Return 200 OK Request.
+     */
+    public void getEmployeeBySalaryAsc() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "+salary";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getSalary() == 0.0);
+        assertTrue(employeeList.get(employeeList.size()-1).getSalary() == 523.4);
+
+    }
+
+    @Test
+    @Order(28)
+    /*
+     * Test Case 28 Description: To retrieve by salary in Descending order with limit 30 and offset 0
+     * Return 200 OK Request.
+     */
+    public void getEmployeeBySalaryDes() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "-salary";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+        List<Employee> employeeList = objectMapper.readValue(contentAsString, new TypeReference<List<Employee>>(){});
+
+        assertTrue(employeeList.size()==30);
+        assertTrue(employeeList.get(0).getSalary() == 34234.5);
+        assertTrue(employeeList.get(employeeList.size()-1).getSalary() == 1234.0);
+
+    }
+
+    @Test
+    @Order(29)
+    /*
+     * Test Case 29 Description: To test more than 5 parameters. Pass in 6 parameters
+     * Return 400 Bad Request.
+     */
+    public void getEmployeePass6Parameters() throws Exception {
+
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+        String sort = "-salary";
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit + "&sort=" + sort + "&test=test"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(30)
+    /*
+     * Test Case 30 Description: To test less than 5 parameters. Pass in 4 parameters
+     * Return 400 Bad Request.
+     */
+    public void getEmployeePass4Parameters() throws Exception {
+
+        Double minSalary = 0.0;
+        Double maxSalary = 40000.00;
+        Integer offset = 0;
+        Integer limit = 30;
+
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(employeeController).build();
+        mockMvc.perform(MockMvcRequestBuilders.get("/users?minSalary=" + minSalary + "&maxSalary=" + maxSalary + "&offset=" + offset + "&limit=" + limit))
+                .andExpect(status().isBadRequest());
+    }
 }

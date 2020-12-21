@@ -1,5 +1,6 @@
 package com.gds.swe.challenge.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.gds.swe.challenge.model.Employee;
@@ -57,11 +58,11 @@ public class FileServiceImpl implements FileService {
 
     public List<Employee> getEmployeeInfo(Double minSalary, Double maxSalary, Integer offset, Integer limit, String sortSymbol, String sortColumn) {
         try {
-            List<Employee> employees;
+            List<Employee> employees = new ArrayList<>();
             if (sortSymbol.matches("[+]")) {
                 employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, new Pagination(offset, limit, Sort.by(sortColumn).ascending()));
-            } else {
-                employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, new Pagination(offset, limit, Sort.by(sortColumn).ascending()));
+            } else if (sortSymbol.matches("[-]")){
+                employees = repository.findAllBySalaryGreaterThanEqualAndSalaryLessThanEqual(minSalary, maxSalary, new Pagination(offset, limit, Sort.by(sortColumn).descending()));
             }
 
             return employees;

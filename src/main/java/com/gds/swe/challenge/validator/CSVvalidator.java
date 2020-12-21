@@ -57,6 +57,7 @@ public class CSVvalidator {
 
                             employees.add(employee);
                         }else{
+                            employees.clear();
                             throw new RuntimeException("Failed to validate record.");
                         }
                     }
@@ -81,7 +82,7 @@ public class CSVvalidator {
             if(BigDecimal.valueOf( Double.parseDouble(data[3])).scale() < 3){
 
                 //Check negative salary
-                if(Double.compare(Double.parseDouble(data[3]), 0.0) > 0){
+                if(Double.compare(Double.parseDouble(data[3]), 0.0) >= 0){
                     Employee employee = repository.findBylogin(data[1]);
                     //Check existing Login
                     if(employee == null){
